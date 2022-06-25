@@ -1,0 +1,134 @@
+﻿@using System.Globalization
+@using AHC011WithB
+
+<div class="alert alert-secondary mt-4">
+    <span class="oi oi-pencil me-2" aria-hidden="true"></span>
+    <strong>@Title</strong>
+
+    <table>
+        <tbody>
+            <tr>
+                <td></td>
+                <td><input type="button" value="U" @onclick="MoveUp" /></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input type="button" value="L" @onclick="MoveLeft" /></td>
+                <td></td>
+                <td><input type="button" value="R" @onclick="MoveRight" /></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><input type="button" value="D" @onclick="MoveDown" /></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+    <p>@ControllerMessage</p>
+
+    N: <input type="text" @bind="@N" size="2" /><br />
+    <textarea @bind="@inputString" style="width: 200px; height: 250px;" /><br />
+    <input type="button" @onclick="Visualise" value="Visualise!" /><br />
+
+    @* Visualized table *@
+    @if (state != null)
+    {
+        <table>
+            <tbody>
+                @for (int i = 0; i < N; i++)
+                {
+                    <tr>
+                        @for (int j = 0; j < N; j++)
+                        {
+                            @* @(state[i, j]) は 0 ~ 15 （盤面の状態）に変換される *@
+                            <td><img src="icons/@(state[i, j]).png" width="64" height="64" /></td>
+                        }
+                    </tr>
+                    
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    public string Title = "AHC011 Visualiser with Blazor";
+
+    public string? ControllerMessage;
+
+    Solver? solver;
+    Solver.BoardState? state;
+
+    public int N = 6;
+    string inputString = "62ce43\na068f9\na89da9\n5d93cb\n276253\n424ba8";
+    
+    public void MoveUp()
+    {
+        if (solver.CanMoveUp(N, state))
+        {
+            solver.MoveUp(N, state);
+            ControllerMessage = "";
+        }
+        else
+        {
+            ControllerMessage = "can't move";
+        }
+    }
+    public void MoveRight()
+    {
+        if (solver.CanMoveRight(N, state))
+        {
+            solver.MoveRight(N, state);
+            ControllerMessage = "";
+        }
+        else
+        {
+            ControllerMessage = "can't move";
+        }
+    }
+    public void MoveLeft()
+    {
+        if (solver.CanMoveLeft(N, state))
+        {
+            solver.MoveLeft(N, state);
+            ControllerMessage = "";
+        }
+        else
+        {
+            ControllerMessage = "can't move";
+        }
+    }
+    public void MoveDown()
+    {
+        if (solver.CanMoveDown(N, state))
+        {
+            solver.MoveDown(N, state);
+            ControllerMessage = "";
+        }
+        else
+        {
+            ControllerMessage = "can't move";
+        }
+    }
+    
+    /// <summary>
+    /// inputString を入力として受け取り、Solver.BoardState state（盤面状態）を生成する
+    /// </summary>
+    void Visualise()
+    {
+        if (inputString != null)
+        {
+            solver = new Solver();
+            state = new Solver.BoardState(N);
+            // 入力受け取り
+            string[] lines = inputString.Replace("\r\n", "\n").Split('\n');
+            for (int i = 0; i < N; i++)
+            {
+                for (int j = 0; j < N; j++)
+                {
+                    state[i, j] = int.Parse(lines[i][j].ToString(), NumberStyles.HexNumber);
+                }
+            }
+        }
+    }
+}
